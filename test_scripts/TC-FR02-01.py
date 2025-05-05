@@ -2,26 +2,18 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import time
-# Test for identifying customer needs
-def test_identifying_customer_needs():
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-    try:
-        driver.get("http://example.com/login")
-        # Log in step
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "username"))).send_keys("valid_user")
-        driver.find_element(By.ID, "password").send_keys("ValidPassword!")
-        driver.find_element(By.ID, "login").click()
-        # Navigate to assessment page
-        WebDriverWait(driver, 10).until(EC.url_contains("/needs-assessment"))
-        driver.find_element(By.ID, "customerSelect").click()
-        driver.find_element(By.XPATH, "//option[text()='Customer 1']").click()
-        # Fill out needs assessment
-        driver.find_element(By.ID, "needsInput").send_keys("Need for support")
-        driver.find_element(By.ID, "submitButton").click()
-        assert driver.find_element(By.ID, "confirmationMessage").is_displayed()
-        assert driver.find_element(By.ID, "confirmationMessage").text == "Needs identified successfully."
-    finally:
-        driver.quit()
+
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+try:
+    driver.get('http://example.com/customer-interaction')
+    assert 'Customer Interaction' in driver.title
+    driver.find_element(By.XPATH, "//button[contains(text(), 'Identify Customer Needs')]").click()
+    time.sleep(1)
+    driver.find_element(By.ID, 'customerData').send_keys('Example Data')
+    driver.find_element(By.ID, 'submitButton').click()
+    time.sleep(2)
+    assert 'Needs Identified' in driver.page_source
+    print("Customer needs identification tool works successfully.")
+finally:
+    driver.quit()
