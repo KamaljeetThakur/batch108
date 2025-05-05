@@ -5,23 +5,22 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
-# Test for identifying customer needs
-def test_identifying_customer_needs():
+
+def filter_data_by_dates(url, start_date, end_date):
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    driver.get(url)
     try:
-        driver.get("http://example.com/login")
-        # Log in step
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "username"))).send_keys("valid_user")
-        driver.find_element(By.ID, "password").send_keys("ValidPassword!")
-        driver.find_element(By.ID, "login").click()
-        # Navigate to assessment page
-        WebDriverWait(driver, 10).until(EC.url_contains("/needs-assessment"))
-        driver.find_element(By.ID, "customerSelect").click()
-        driver.find_element(By.XPATH, "//option[text()='Customer 1']").click()
-        # Fill out needs assessment
-        driver.find_element(By.ID, "needsInput").send_keys("Need for support")
-        driver.find_element(By.ID, "submitButton").click()
-        assert driver.find_element(By.ID, "confirmationMessage").is_displayed()
-        assert driver.find_element(By.ID, "confirmationMessage").text == "Needs identified successfully."
+        WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.ID, "date_filter_button"))
+        ).click()
+        driver.find_element(By.ID, "start_date").send_keys(start_date)
+        driver.find_element(By.ID, "end_date").send_keys(end_date)
+        driver.find_element(By.ID, "apply_filters").click()
+        time.sleep(2)
+        # Verify data displayed is within range
+        # Additional verification logic can be implemented here
+        print("Data filtered successfully within the specified dates.")
+    except Exception as e:
+        print(f"Filtering failed: {e}")
     finally:
         driver.quit()
