@@ -5,13 +5,16 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
-# Test for negative interaction without login
-def test_customer_interaction_without_login():
+
+def test_login_required_for_interaction():
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     try:
-        driver.get("http://example.com/interaction")
-        assert "Login" in driver.title
-        assert driver.find_element(By.ID, "loginMessage").is_displayed()
-        assert driver.find_element(By.ID, "loginMessage").text == "Please login to continue."
+        driver.get("http://customer-interaction-platform.com")
+        assert "Customer Interaction" in driver.title
+        driver.find_element(By.XPATH, "//button[text()='Start Interaction']").click()
+        time.sleep(2)
+        error_message = driver.find_element(By.ID, "error-message").text
+        assert "Please log in" in error_message
+        print("Error message displayed as expected.")
     finally:
         driver.quit()
