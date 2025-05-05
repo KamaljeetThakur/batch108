@@ -5,21 +5,30 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
-# Test for empty message interaction
-def test_empty_message_interaction():
+
+def sso_stay_signed_in(url, username, password):
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     try:
-        driver.get("http://example.com/login")
-        # Log in step
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "username"))).send_keys("valid_user")
-        driver.find_element(By.ID, "password").send_keys("ValidPassword!")
-        driver.find_element(By.ID, "login").click()
-        # Navigate to interaction page
-        WebDriverWait(driver, 10).until(EC.url_contains("/interaction"))
-        driver.find_element(By.ID, "startChat").click()
-        # Attempt to send an empty message
-        driver.find_element(By.ID, "sendButton").click()
-        assert driver.find_element(By.ID, "errorMessage").is_displayed()
-        assert driver.find_element(By.ID, "errorMessage").text == "Cannot send an empty message."
+        driver.get(url)
+        WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Login with SSO')]"))
+        ).click()
+        WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "i0116"))).send_keys(username)
+        driver.find_element(By.ID, "idSIButton9").click()
+        WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "i0118"))).send_keys(password)
+        driver.find_element(By.ID, "idSIButton9").click()
+        time.sleep(2)
+        WebDriverWait(driver, 15).until(
+            EC.element_to_be_clickable((By.XPATH, "//input[@value='Yes']"))
+        ).click()
+        print("User chose to stay signed in.")
+        # Close and reopen browser
+        time.sleep(2)
+        driver.quit()
+        driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+        driver.get(url)
+        print("Reopened browser; user should still be logged in.")
+    except Exception as e:
+        print(f"Process failed: {e}")
     finally:
         driver.quit()

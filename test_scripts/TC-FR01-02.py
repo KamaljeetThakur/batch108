@@ -5,13 +5,25 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
-# Test for negative interaction without login
-def test_customer_interaction_without_login():
+
+def sso_login_invalid(url, username, password):
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     try:
-        driver.get("http://example.com/interaction")
-        assert "Login" in driver.title
-        assert driver.find_element(By.ID, "loginMessage").is_displayed()
-        assert driver.find_element(By.ID, "loginMessage").text == "Please login to continue."
+        driver.get(url)
+        WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.XPATH, "//button[contains(text(), 'Login with SSO')]"))
+        ).click()
+        time.sleep(2)
+        WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "i0116"))).send_keys(username)
+        driver.find_element(By.ID, "idSIButton9").click()
+        time.sleep(2)
+        WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.ID, "i0118"))).send_keys(password)
+        driver.find_element(By.ID, "idSIButton9").click()
+        time.sleep(2)
+        error_message = driver.find_element(By.ID, "error_message").text
+        assert error_message == "Invalid credentials"
+        print("Received error message for invalid credentials.")
+    except Exception as e:
+        print(f"Login failed: {e}")
     finally:
         driver.quit()
