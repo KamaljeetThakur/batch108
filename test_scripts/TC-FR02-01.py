@@ -5,23 +5,16 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
-# Test for identifying customer needs
-def test_identifying_customer_needs():
+
+def test_customer_needs_identification():
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     try:
-        driver.get("http://example.com/login")
-        # Log in step
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "username"))).send_keys("valid_user")
-        driver.find_element(By.ID, "password").send_keys("ValidPassword!")
-        driver.find_element(By.ID, "login").click()
-        # Navigate to assessment page
-        WebDriverWait(driver, 10).until(EC.url_contains("/needs-assessment"))
-        driver.find_element(By.ID, "customerSelect").click()
-        driver.find_element(By.XPATH, "//option[text()='Customer 1']").click()
-        # Fill out needs assessment
-        driver.find_element(By.ID, "needsInput").send_keys("Need for support")
-        driver.find_element(By.ID, "submitButton").click()
-        assert driver.find_element(By.ID, "confirmationMessage").is_displayed()
-        assert driver.find_element(By.ID, "confirmationMessage").text == "Needs identified successfully."
+        driver.get("http://customer-needs-assessment.com")
+        assert "Needs Assessment" in driver.title
+        driver.find_element(By.NAME, "question1").send_keys("Service A")
+        driver.find_element(By.XPATH, "//button[text()='Submit']").click()
+        time.sleep(2)
+        assert "Thank you for your responses" in driver.page_source
+        print("Needs assessment submitted successfully.")
     finally:
         driver.quit()
